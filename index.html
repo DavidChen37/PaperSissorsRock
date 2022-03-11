@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="text-center">
+      <h1>ROUND 1</h1>
+    </div>
+    <script>
+      function updateResults() {
+        document.getElementById("displayResults").innerHTML =
+          "Result was a " + result;
+        return result;
+      }
+      var ran, botchoice, result;
+      function botrandomchoice() {
+        ran = Math.floor(Math.random() * (4 - 1) + 1);
+        if (ran == 1) {
+          return "paper";
+        } else if (ran == 2) {
+          return "scissors";
+        } else if (ran == 3) {
+          return "rock";
+        }
+      }
+      function botclicked(choice) {
+        document.getElementById("botSelection").innerHTML =
+          "Bot selected " + choice;
+        document.getElementById("botscissors").firstChild.src =
+          "assets/img/" + choice + ".JPG";
+        document.getElementById("botpaper").style.display = "none";
+        document.getElementById("botrock").style.display = "none";
+      }
+      function clicked(choice) {
+        botchoice = botrandomchoice();
+        botclicked(botchoice);
+        document.getElementById("mySelection").innerHTML =
+          "You selected " + choice;
+        choice;
+        document.getElementById("scissors").firstChild.src =
+          "assets/img/" + choice + ".JPG";
+        document.getElementById("paper").style.display = "none";
+        document.getElementById("rock").style.display = "none";
+        result = validation(botchoice, choice);
+        console.log("player " + result + "s...");
+        updateResults();
+      }
+      function validation(bot, player) {
+        if (player == "paper") {
+          if (bot == "scissors") {
+            return "lose";
+          } else if (bot == "paper") {
+            return "draw";
+          } else if (bot == "rock") {
+            return "win";
+          }
+        } else if (player == "scissors") {
+          if (bot == "scissors") {
+            return "draw";
+          } else if (bot == "paper") {
+            return "win";
+          } else if (bot == "rock") {
+            return "lose";
+          }
+        } else if (player == "rock") {
+          if (bot == "scissors") {
+            return "win";
+          } else if (bot == "paper") {
+            return "lose";
+          } else if (bot == "rock") {
+            return "draw";
+          }
+        }
+      }
+    </script>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6" style="text-align: center">
+          <h3>Column 1</h3>
+          <div>You</div>
+          <div class="row" style="width: 400px; margin: auto">
+            <div class="col-sm-4" style="text-align: center">
+              <a href="#" onclick="clicked('paper')" id="paper" class="mine"
+                ><img
+                  id="imga"
+                  src="assets/img/paper.JPG"
+                  style="height: 150px; width: 100px"
+                />
+              </a>
+            </div>
+            <div class="col-sm-4" style="text-align: center">
+              <a
+                href="#"
+                onclick="clicked('scissors')"
+                id="scissors"
+                class="mine"
+                ><img
+                  src="assets/img/scissors.JPG"
+                  style="height: 150px; width: 100px"
+                />
+              </a>
+            </div>
+            <div class="col-sm-4" style="text-align: center">
+              <a href="#" onclick="clicked('rock')" id="rock" class="mine"
+                ><img
+                  src="assets/img/rock.JPG"
+                  style="height: 150px; width: 100px"
+                />
+              </a>
+            </div>
+          </div>
+          <div id="mySelection">Need To make a selection</div>
+        </div>
+        <div class="col-sm-6" style="text-align: center">
+          <h3>Column 2</h3>
+          <div>opponent</div>
+          <div class="row" style="width: 400px; margin: auto">
+            <div class="col-sm-4" style="text-align: center">
+              <a href="#" id="botpaper"
+                ><img
+                  src="assets/img/paper.JPG"
+                  style="height: 150px; width: 100px"
+                />
+              </a>
+            </div>
+            <div class="col-sm-4" style="text-align: center">
+              <a href="#" id="botscissors"
+                ><img
+                  src="assets/img/scissors.JPG"
+                  style="height: 150px; width: 100px"
+                />
+              </a>
+            </div>
+            <div class="col-sm-4" style="text-align: center">
+              <a href="#" id="botrock"
+                ><img
+                  src="assets/img/Rock.JPG"
+                  style="height: 150px; width: 100px"
+                />
+              </a>
+            </div>
+          </div>
+          <div id="botSelection">Bot has selected</div>
+        </div>
+      </div>
+      <div class="results">
+        <h2 id="displayResults" style="text-align: center"></h2>
+      </div>
+    </div>
+  </body>
+</html>
