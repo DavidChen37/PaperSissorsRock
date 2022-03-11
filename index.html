@@ -14,8 +14,26 @@
   <body>
     <div class="text-center">
       <h1>ROUND 1</h1>
+      <a onclick="restart()"><u>restart</u></a>
     </div>
     <script>
+      function restart() {
+        document.getElementById("botscissors").firstChild.src =
+          "assets/img/scissors.JPG";
+        document.getElementById("botpaper").style.display = "block";
+        document.getElementById("botrock").style.display = "block";
+        document.getElementById("scissors").firstChild.src =
+          "assets/img/scissors.JPG";
+        document.getElementById("paper").style.display = "block";
+
+        document.getElementById("rock").style.display = "block";
+        document.getElementById("mySelection").innerHTML =
+          "Need To make a selection";
+        document.getElementById("botSelection").innerHTML = "Bot has selected";
+        document.getElementById("mySelection").style.display = "block";
+        document.getElementById("botSelection").style.display = "block";
+        document.getElementById("displayResults").innerHTML = "";
+      }
       function updateResults() {
         document.getElementById("displayResults").innerHTML =
           "Result was a " + result;
