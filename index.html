@@ -54,6 +54,7 @@
       }
       function myfunc() {
         console.log("wait");
+        document.getElementById("webcam-container").style.display = "none";
         clicked(preditedchoice);
       }
       async function offit() {
@@ -68,6 +69,7 @@
       }
       function nextround() {
         console.log("on");
+        document.getElementById("webcam-container").style.display = "block";
         webcam.play();
         offit();
         window.requestAnimationFrame(loop);
@@ -180,7 +182,7 @@
           document.getElementById("displayResults").innerHTML = "Bot wins";
           webcam.stop;
         } else {
-          //   setTimeout(nextround, 1000);
+          setTimeout(nextround, 1000);
         }
       }
 
