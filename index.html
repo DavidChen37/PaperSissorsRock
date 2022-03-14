@@ -43,7 +43,7 @@
       // Load the image model and setup the webcam
       async function init() {
         document.getElementById("startbtn").style.display = "none";
-        document.getElementById("stopbtn").style.display = "block";
+        document.getElementById("stopbtn").style.display = "flex";
         gameclose = false;
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
@@ -66,14 +66,19 @@
       function restart() {
         location.reload();
       }
-      function stopgame() {
+      function finishedgame() {
+        //hide tags
+        document.getElementById("botpaper").style.display = "none";
+        document.getElementById("botrock").style.display = "none";
         document.getElementById("startbtn").style.display = "none";
         document.getElementById("stopbtn").style.display = "none";
         document.getElementById("paper").style.display = "none";
         document.getElementById("scissors").style.display = "none";
         document.getElementById("botscissors").style.display = "none";
         document.getElementById("rock").style.display = "none";
+        //end game
         gameclose = true;
+
         if (webcam != null) {
           webcam.stop();
 
@@ -88,13 +93,28 @@
           ai = false;
         }
       }
+      function stoprecording() {
+        document.getElementById("botpaper").style.display = "block";
+        document.getElementById("botrock").style.display = "block";
+        document.getElementById("startbtn").style.display = "flex";
+        document.getElementById("stopbtn").style.display = "none";
+        if (webcam != null) {
+          webcam.stop();
+          const webcamlist = document.getElementById("webcam-container");
+          while (webcamlist.hasChildNodes()) {
+            webcamlist.removeChild(webcamlist.firstChild);
+          }
+          const labellist = document.getElementById("label-container");
+          while (labellist.hasChildNodes()) {
+            labellist.removeChild(labellist.firstChild);
+          }
+          ai = false;
+        }
+      }
       function myfunc() {
-        console.log("wait");
-        document.getElementById("webcam-container").style.display = "none";
         clicked(preditedchoice);
       }
       async function offit() {
-        console.log("off");
         setTimeout(webcam.pause, 5000);
         setTimeout(myfunc, 5000);
       }
@@ -105,20 +125,23 @@
       }
       function nextround() {
         if (gameclose == false) {
+          //dislay bot tabs
           document.getElementById("botscissors").firstChild.src =
             "assets/img/scissors.JPG";
           document.getElementById("botpaper").style.display = "block";
           document.getElementById("botrock").style.display = "block";
-
+          //display my tabs
           document.getElementById("paper").style.display = "block";
           document.getElementById("scissors").firstChild.src =
             "assets/img/scissors.JPG";
           document.getElementById("rock").style.display = "block";
-          console.log("on");
+          //show camera
           document.getElementById("webcam-container").style.display = "block";
-          if (webcam != null) {
+          //if using ai display camera
+          if (ai == true) {
             webcam.play();
-            offit();
+            //pause
+            // offit();
             window.requestAnimationFrame(loop);
 
             // append elements to the DOM
@@ -225,13 +248,13 @@
             document.getElementById("displayResults").innerHTML =
               "User wins :D";
             restartscores();
-            stopgame();
+            finishedgame();
           } else if (botscore >= MostOutOf) {
             console.log("botscore=" + botscore + " so bot wins");
             document.getElementById("displayResults").style.color = "red";
             document.getElementById("displayResults").innerHTML = "Bot wins :(";
             restartscores();
-            stopgame();
+            finishedgame();
           } else {
             setTimeout(nextround, 1000);
           }
@@ -298,34 +321,51 @@
           id="startbtn"
           onclick="init()"
           style="
-            display: block;
-            width: 5vw;
+            display: flex;
+            width: 125px;
             margin: 5px;
             background: #00a500;
             border: 0px;
             color: white;
             font-size: large;
             border-radius: 7px;
+            align-items: center;
           "
         >
-          Start</button
-        ><button
-          type="button"
-          style="
-            display: none;
-            width: 5vw;
-            margin: 5px;
-            background: red;
-            border: 0px;
-            color: white;
-            font-size: large;
-            border-radius: 7px;
-          "
-          id="stopbtn"
-          onclick="stopgame()"
-        >
-          Stop
+          <img
+            src="assets/img/camera.png"
+            style="background-color: #00a500; margin-right: 5px"
+            height="40"
+            width="40"
+          />
+          <p style="margin: auto">Start Camera</p>
         </button>
+        <div>
+          <button
+            type="button"
+            id="stopbtn"
+            onclick="stoprecording()"
+            style="
+              display: none;
+              width: 125px;
+              margin: 5px;
+              background: red;
+              border: 0px;
+              color: white;
+              font-size: large;
+              border-radius: 7px;
+              align-items: center;
+            "
+          >
+            <img
+              src="assets/img/camera.png"
+              style="background-color: red; margin-right: 5px"
+              height="40"
+              width="40"
+            />
+            <p style="margin: auto">Stop Camera</p>
+          </button>
+        </div>
         <div
           id="webcam-container"
           style="display: block; border-radius: 10px"
@@ -338,41 +378,53 @@
         <div class="col-sm-6" style="text-align: center">
           <h3 id="playerScoreDisplay" style="color: blue">Score - 0</h3>
           <div style="color: white">You</div>
-          <div class="row" style="width: 400px; margin: auto">
-            <div class="col-sm-4" style="text-align: center">
-              <a
-                href="#"
-                onclick="clickoption('paper')"
-                id="paper"
-                class="mine"
-              >
-                <img
-                  src="assets/img/paper.JPG"
-                  style="height: 150px; width: 100px"
-                />
-              </a>
-            </div>
-            <div class="col-sm-4" style="text-align: center">
-              <a
-                href="#"
-                onclick="clickoption('scissors')"
-                id="scissors"
-                class="mine"
-                ><img
-                  src="assets/img/scissors.JPG"
-                  style="height: 150px; width: 100px"
-                />
-              </a>
-            </div>
-            <div class="col-sm-4" style="text-align: center">
-              <a href="#" onclick="clickoption('rock')" id="rock" class="mine"
-                ><img
-                  src="assets/img/rock.JPG"
-                  style="height: 150px; width: 100px"
-                />
-              </a>
-            </div>
+          <div
+            class="row"
+            style="
+              width: 400px;
+              display: flex;
+              margin: auto;
+              justify-content: center;
+            "
+          >
+            <a
+              href="#"
+              onclick="clickoption('paper')"
+              id="paper"
+              class="mine"
+              style="margin: 0 5px"
+            >
+              <img
+                src="assets/img/paper.JPG"
+                style="height: 150px; width: 100px"
+              />
+            </a>
+
+            <a
+              href="#"
+              onclick="clickoption('scissors')"
+              id="scissors"
+              class="mine"
+              style="margin: 0 5px"
+              ><img
+                src="assets/img/scissors.JPG"
+                style="height: 150px; width: 100px"
+              />
+            </a>
+
+            <a
+              href="#"
+              onclick="clickoption('rock')"
+              id="rock"
+              class="mine"
+              style="margin: 0 5px"
+              ><img
+                src="assets/img/rock.JPG"
+                style="height: 150px; width: 100px"
+              />
+            </a>
           </div>
+
           <br />
           <div id="mySelection" style="color: white">
             Need To make a selection
@@ -381,31 +433,36 @@
         <div class="col-sm-6" style="text-align: center">
           <h3 id="botScoreDisplay" style="color: blue">Score - 0</h3>
           <div style="color: white">opponent</div>
-          <div class="row" style="width: 400px; margin: auto">
-            <div class="col-sm-4" style="text-align: center">
-              <a href="#" id="botpaper"
-                ><img
-                  src="assets/img/paper.JPG"
-                  style="height: 150px; width: 100px"
-                />
-              </a>
-            </div>
-            <div class="col-sm-4" style="text-align: center">
-              <a href="#" id="botscissors"
-                ><img
-                  src="assets/img/scissors.JPG"
-                  style="height: 150px; width: 100px"
-                />
-              </a>
-            </div>
-            <div class="col-sm-4" style="text-align: center">
-              <a href="#" id="botrock"
-                ><img
-                  src="assets/img/Rock.JPG"
-                  style="height: 150px; width: 100px"
-                />
-              </a>
-            </div>
+          <div class="row"style="
+          width: 400px;
+          display: flex;
+          margin: auto;
+          justify-content: center;
+        "">
+            <!-- <div class="col-sm-4" style="text-align: center"> -->
+            <a href="#" id="botpaper" style="margin: 0 5px"
+              ><img
+                src="assets/img/paper.JPG"
+                style="height: 150px; width: 100px"
+              />
+            </a>
+            <!-- </div> -->
+            <!-- <div class="col-sm-4" style="text-align: center"> -->
+            <a href="#" id="botscissors" style="margin: 0 5px"
+              ><img
+                src="assets/img/scissors.JPG"
+                style="height: 150px; width: 100px"
+              />
+            </a>
+            <!-- </div> -->
+            <!-- <div class="col-sm-4" style="text-align: center"> -->
+            <a href="#" id="botrock" style="margin: 0 5px"
+              ><img
+                src="assets/img/Rock.JPG"
+                style="height: 150px; width: 100px"
+              />
+            </a>
+            <!-- </div> -->
           </div>
           <br />
           <div id="botSelection" style="color: white">Bot has selected</div>
