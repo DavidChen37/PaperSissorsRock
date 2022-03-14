@@ -11,10 +11,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   </head>
-  <body>
+  <body style="background: black">
     <div class="text-center">
-      <h1>ROUND 1</h1>
-      <a onclick="restart()"><u>restart</u></a>
+      <h1 style="color: white; font-weight: 900">PAPER SCISSORS ROCK V1</h1>
+      <a onclick="restart()"
+        ><h3>
+          <u style="color: white; font-weight: bold; cursor: pointer"
+            >Restart</u
+          >
+        </h3></a
+      >
     </div>
     <script type="text/javascript">
       var ran, botchoice, userchoice, camresult;
@@ -22,7 +28,7 @@
       var botscore = 0;
 
       const URL = "https://teachablemachine.withgoogle.com/models/cxUexDxHK/";
-
+      let MostOutOf = 1;
       let model,
         webcam,
         labelContainer,
@@ -31,8 +37,8 @@
         me,
         result,
         resultchange,
-        gameclose,
         preditedchoice;
+      let gameclose = false;
       // Load the image model and setup the webcam
       async function init() {
         document.getElementById("startbtn").style.display = "none";
@@ -51,14 +57,17 @@
         // Convenience function to setup a webcam
         const flip = true; // whether to flip the webcam
         webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+        alert("We are gathering data to identify hand signals");
         await webcam.setup(); // request access to the webcam
 
         nextround();
       }
+      function restart() {
+        location.reload();
+      }
       function stopgame() {
-        document.getElementById("startbtn").style.display = "block";
+        document.getElementById("startbtn").style.display = "none";
         document.getElementById("stopbtn").style.display = "none";
-        alert("closing");
         webcam.stop();
         gameclose = true;
         const webcamlist = document.getElementById("webcam-container");
@@ -77,8 +86,8 @@
       }
       async function offit() {
         console.log("off");
-        setTimeout(webcam.pause, 5000);
-        setTimeout(myfunc, 5000);
+        // setTimeout(webcam.pause, 5000);
+        // setTimeout(myfunc, 5000);
       }
       async function loop() {
         webcam.update(); // update the webcam frame
@@ -97,6 +106,10 @@
           document
             .getElementById("webcam-container")
             .appendChild(webcam.canvas);
+          webcam.canvas.setAttribute(
+            "style",
+            "border-radius: 10px; border: 5px solid #424242;"
+          );
           labelContainer = document.getElementById("label-container");
           for (let i = 0; i < maxPredictions; i++) {
             // and class labels
@@ -151,10 +164,10 @@
         }
       }
 
-      function restart() {
+      function restartscores() {
+        console.log("Points reset");
         userscore = 0;
         botscore = 0;
-        refresh();
       }
 
       function updateResults() {
@@ -196,14 +209,16 @@
         console.log("player " + result + "s...");
         updateResults();
         console.log("user:" + userscore + ",botscore" + botscore);
-        if (userscore >= 3) {
+        if (userscore >= MostOutOf) {
           console.log("userscore=" + userscore + " so user wins");
-          document.getElementById("displayResults").innerHTML = "User wins";
-          webcam.stop;
-        } else if (botscore >= 3) {
+          document.getElementById("displayResults").innerHTML = "User wins :D";
+          restartscores();
+          stopgame();
+        } else if (botscore >= MostOutOf) {
           console.log("botscore=" + botscore + " so bot wins");
-          document.getElementById("displayResults").innerHTML = "Bot wins";
-          webcam.stop;
+          document.getElementById("displayResults").innerHTML = "Bot wins :(";
+          restartscores();
+          stopgame();
         } else {
           setTimeout(nextround, 1000);
         }
@@ -260,22 +275,56 @@
       }
     </script>
     <div class="container">
-      <div>Teachable Machine Image Model</div>
-      <button type="button" id="startbtn" onclick="init()">Start</button>
-      <button type="button" id="stopbtn" onclick="stopgame()">Stop</button>
-      <div id="webcam-container"></div>
-      <div id="label-container"></div>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <button
+          type="button"
+          id="startbtn"
+          onclick="init()"
+          style="
+            display: block;
+            width: 5vw;
+            margin: 5px;
+            background: #00a500;
+            border: 0px;
+            color: white;
+            font-size: large;
+            border-radius: 7px;
+          "
+        >
+          Start</button
+        ><button
+          type="button"
+          style="
+            display: none;
+            width: 5vw;
+            margin: 5px;
+            background: red;
+            border: 0px;
+            color: white;
+            font-size: large;
+            border-radius: 7px;
+          "
+          id="stopbtn"
+          onclick="stopgame()"
+        >
+          Stop
+        </button>
+        <div
+          id="webcam-container"
+          style="display: block; border-radius: 10px"
+        ></div>
+        <div id="label-container" style="color: white"></div>
+      </div>
       <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
       <div class="row">
         <div class="col-sm-6" style="text-align: center">
-          <h3 id="playerScoreDisplay">Score - 0</h3>
-          <div>You</div>
+          <h3 id="playerScoreDisplay" style="color: blue">Score - 0</h3>
+          <div style="color: white">You</div>
           <div class="row" style="width: 400px; margin: auto">
             <div class="col-sm-4" style="text-align: center">
               <a href="#" onclick="clicked('paper')" id="paper" class="mine">
                 <img
-                  id="imga"
                   src="assets/img/paper.JPG"
                   style="height: 150px; width: 100px"
                 />
@@ -302,11 +351,13 @@
               </a>
             </div>
           </div>
-          <div id="mySelection">Need To make a selection</div>
+          <div id="mySelection" style="color: white">
+            Need To make a selection
+          </div>
         </div>
         <div class="col-sm-6" style="text-align: center">
-          <h3 id="botScoreDisplay">Score - 0</h3>
-          <div>opponent</div>
+          <h3 id="botScoreDisplay" style="color: blue">Score - 0</h3>
+          <div style="color: white">opponent</div>
           <div class="row" style="width: 400px; margin: auto">
             <div class="col-sm-4" style="text-align: center">
               <a href="#" id="botpaper"
@@ -333,11 +384,11 @@
               </a>
             </div>
           </div>
-          <div id="botSelection">Bot has selected</div>
+          <div id="botSelection" style="color: white">Bot has selected</div>
         </div>
       </div>
       <div class="results">
-        <h2 id="displayResults" style="text-align: center"></h2>
+        <h2 id="displayResults" style="text-align: center; color: red"></h2>
       </div>
     </div>
   </body>
