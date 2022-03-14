@@ -26,15 +26,16 @@
       var ran, botchoice, userchoice, camresult;
       var userscore = 0;
       var botscore = 0;
-
+      var ai = false;
+      var btnclick = false;
       const URL = "https://teachablemachine.withgoogle.com/models/cxUexDxHK/";
-      let MostOutOf = 1;
+      let MostOutOf = 10;
       let model,
         webcam,
         labelContainer,
         maxPredictions,
-        bottle,
-        me,
+        paperpredict,
+        rockpredict,
         result,
         resultchange,
         preditedchoice;
@@ -53,7 +54,7 @@
         // Note: the pose library adds "tmImage" object to your window (window.tmImage)
         model = await tmImage.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
-
+        ai = true;
         // Convenience function to setup a webcam
         const flip = true; // whether to flip the webcam
         webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
@@ -68,15 +69,23 @@
       function stopgame() {
         document.getElementById("startbtn").style.display = "none";
         document.getElementById("stopbtn").style.display = "none";
-        webcam.stop();
+        document.getElementById("paper").style.display = "none";
+        document.getElementById("scissors").style.display = "none";
+        document.getElementById("botscissors").style.display = "none";
+        document.getElementById("rock").style.display = "none";
         gameclose = true;
-        const webcamlist = document.getElementById("webcam-container");
-        while (webcamlist.hasChildNodes()) {
-          webcamlist.removeChild(webcamlist.firstChild);
-        }
-        const labellist = document.getElementById("label-container");
-        while (labellist.hasChildNodes()) {
-          labellist.removeChild(labellist.firstChild);
+        if (webcam != null) {
+          webcam.stop();
+
+          const webcamlist = document.getElementById("webcam-container");
+          while (webcamlist.hasChildNodes()) {
+            webcamlist.removeChild(webcamlist.firstChild);
+          }
+          const labellist = document.getElementById("label-container");
+          while (labellist.hasChildNodes()) {
+            labellist.removeChild(labellist.firstChild);
+          }
+          ai = false;
         }
       }
       function myfunc() {
@@ -86,8 +95,8 @@
       }
       async function offit() {
         console.log("off");
-        // setTimeout(webcam.pause, 5000);
-        // setTimeout(myfunc, 5000);
+        setTimeout(webcam.pause, 5000);
+        setTimeout(myfunc, 5000);
       }
       async function loop() {
         webcam.update(); // update the webcam frame
@@ -96,24 +105,36 @@
       }
       function nextround() {
         if (gameclose == false) {
+          document.getElementById("botscissors").firstChild.src =
+            "assets/img/scissors.JPG";
+          document.getElementById("botpaper").style.display = "block";
+          document.getElementById("botrock").style.display = "block";
+
+          document.getElementById("paper").style.display = "block";
+          document.getElementById("scissors").firstChild.src =
+            "assets/img/scissors.JPG";
+          document.getElementById("rock").style.display = "block";
           console.log("on");
           document.getElementById("webcam-container").style.display = "block";
-          webcam.play();
-          offit();
-          window.requestAnimationFrame(loop);
+          if (webcam != null) {
+            webcam.play();
+            offit();
+            window.requestAnimationFrame(loop);
 
-          // append elements to the DOM
-          document
-            .getElementById("webcam-container")
-            .appendChild(webcam.canvas);
-          webcam.canvas.setAttribute(
-            "style",
-            "border-radius: 10px; border: 5px solid #424242;"
-          );
-          labelContainer = document.getElementById("label-container");
-          for (let i = 0; i < maxPredictions; i++) {
-            // and class labels
-            labelContainer.appendChild(document.createElement("div"));
+            // append elements to the DOM
+            document
+              .getElementById("webcam-container")
+              .appendChild(webcam.canvas);
+            webcam.canvas.setAttribute(
+              "style",
+              "border-radius: 10px; border: 5px solid #424242;"
+            );
+            labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < maxPredictions; i++) {
+              // and class labels
+              labelContainer.appendChild(document.createElement("div"));
+            }
+          } else {
           }
         }
         console.log("Exited");
@@ -128,36 +149,22 @@
             ": " +
             prediction[i].probability.toFixed(2);
           if (prediction[i].className === "Paper") {
-            if (prediction[i].probability.toFixed(2) != bottle) {
+            if (prediction[i].probability.toFixed(2) != paperpredict) {
               resultchange = true;
-              //   console.log(
-              //     prediction[i].className +
-              //       ": " +
-              //       prediction[i].probability.toFixed(2)
-              //   );
             }
-            bottle = prediction[i].probability.toFixed(2);
+            paperpredict = prediction[i].probability.toFixed(2);
           } else if (prediction[i].className === "Rock") {
-            if (prediction[i].probability.toFixed(2) != me) {
+            if (prediction[i].probability.toFixed(2) != rockpredict) {
               resultchange = true;
-              //   console.log(
-              //     prediction[i].className +
-              //       ": " +
-              //       prediction[i].probability.toFixed(2)
-              //   );
             }
-            me = prediction[i].probability.toFixed(2);
+            rockpredict = prediction[i].probability.toFixed(2);
           }
           if (resultchange === true) {
             resultchange = false;
-            if (bottle > me) {
-              console.log("[Paper]" + bottle + ">" + "Rock" + me);
+            if (paperpredict > rockpredict) {
               preditedchoice = "paper";
-              //bottle code
             } else {
-              console.log("[Rock]" + me + ">" + "Paper" + bottle);
               preditedchoice = "rock";
-              //me code
             }
           }
           labelContainer.childNodes[i].innerHTML = classPrediction;
@@ -195,35 +202,45 @@
         document.getElementById("botrock").style.display = "none";
       }
       function clicked(choice) {
-        console.log("user choice was " + choice);
-        botchoice = botrandomchoice();
-        botclicked(botchoice);
-        userchoice = choice;
-        document.getElementById("mySelection").innerHTML =
-          "You selected " + userchoice;
-        document.getElementById("scissors").firstChild.src =
-          "assets/img/" + userchoice + ".JPG";
-        document.getElementById("paper").style.display = "none";
-        document.getElementById("rock").style.display = "none";
-        result = validation(botchoice, userchoice);
-        console.log("player " + result + "s...");
-        updateResults();
-        console.log("user:" + userscore + ",botscore" + botscore);
-        if (userscore >= MostOutOf) {
-          console.log("userscore=" + userscore + " so user wins");
-          document.getElementById("displayResults").innerHTML = "User wins :D";
-          restartscores();
-          stopgame();
-        } else if (botscore >= MostOutOf) {
-          console.log("botscore=" + botscore + " so bot wins");
-          document.getElementById("displayResults").innerHTML = "Bot wins :(";
-          restartscores();
-          stopgame();
+        if (btnclick == true && ai == true) {
+          btnclick = false;
         } else {
-          setTimeout(nextround, 1000);
+          console.log("user choice was " + choice);
+          botchoice = botrandomchoice();
+          botclicked(botchoice);
+          userchoice = choice;
+          document.getElementById("mySelection").innerHTML =
+            "You selected " + userchoice;
+          document.getElementById("scissors").firstChild.src =
+            "assets/img/" + userchoice + ".JPG";
+          document.getElementById("paper").style.display = "none";
+          document.getElementById("rock").style.display = "none";
+          result = validation(botchoice, userchoice);
+          console.log("player " + result + "s...");
+          updateResults();
+          console.log("user:" + userscore + ",botscore" + botscore);
+          if (userscore >= MostOutOf) {
+            console.log("userscore=" + userscore + " so user wins");
+            document.getElementById("displayResults").style.color = "green";
+            document.getElementById("displayResults").innerHTML =
+              "User wins :D";
+            restartscores();
+            stopgame();
+          } else if (botscore >= MostOutOf) {
+            console.log("botscore=" + botscore + " so bot wins");
+            document.getElementById("displayResults").style.color = "red";
+            document.getElementById("displayResults").innerHTML = "Bot wins :(";
+            restartscores();
+            stopgame();
+          } else {
+            setTimeout(nextround, 1000);
+          }
         }
       }
-
+      function clickoption(selection) {
+        btnclick = true;
+        clicked(selection);
+      }
       function validation(bot, player) {
         if (player == "paper") {
           if (bot == "scissors") {
@@ -323,7 +340,12 @@
           <div style="color: white">You</div>
           <div class="row" style="width: 400px; margin: auto">
             <div class="col-sm-4" style="text-align: center">
-              <a href="#" onclick="clicked('paper')" id="paper" class="mine">
+              <a
+                href="#"
+                onclick="clickoption('paper')"
+                id="paper"
+                class="mine"
+              >
                 <img
                   src="assets/img/paper.JPG"
                   style="height: 150px; width: 100px"
@@ -333,7 +355,7 @@
             <div class="col-sm-4" style="text-align: center">
               <a
                 href="#"
-                onclick="clicked('scissors')"
+                onclick="clickoption('scissors')"
                 id="scissors"
                 class="mine"
                 ><img
@@ -343,7 +365,7 @@
               </a>
             </div>
             <div class="col-sm-4" style="text-align: center">
-              <a href="#" onclick="clicked('rock')" id="rock" class="mine"
+              <a href="#" onclick="clickoption('rock')" id="rock" class="mine"
                 ><img
                   src="assets/img/rock.JPG"
                   style="height: 150px; width: 100px"
@@ -351,6 +373,7 @@
               </a>
             </div>
           </div>
+          <br />
           <div id="mySelection" style="color: white">
             Need To make a selection
           </div>
@@ -384,11 +407,12 @@
               </a>
             </div>
           </div>
+          <br />
           <div id="botSelection" style="color: white">Bot has selected</div>
         </div>
       </div>
       <div class="results">
-        <h2 id="displayResults" style="text-align: center; color: red"></h2>
+        <h2 id="displayResults" style="text-align: center"></h2>
       </div>
     </div>
   </body>
